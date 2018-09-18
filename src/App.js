@@ -3,6 +3,7 @@ import { withStyles } from '@material-ui/core/styles';
 import MapboxMap from './components/MapboxMap';
 import Controls from './components/Controls';
 import InfoOverlay from './components/InfoOverlay';
+import Legend from './components/Legend';
 
 const styles = {
   root: {

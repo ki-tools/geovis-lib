@@ -56,7 +56,7 @@ export const mapLoaded = (state = false, action) => {
   return state;
 };
 
-export const hovGeo = (state = '', action) => {
+export const hovGeo = (state = { level: '', id: '' }, action) => {
   switch (action.type) {
     case SET_HOV_GEO:
       return action.val;

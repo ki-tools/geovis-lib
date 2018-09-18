@@ -12,7 +12,6 @@ const SeriesPlotD3 = {};
 
 class SeriesPlot extends React.Component {
   componentDidMount() {
-    console.log(this.props)
     this._d3node
       .call(SeriesPlotD3.enter.bind(this, this.props));
   }
@@ -47,7 +46,7 @@ SeriesPlot.propTypes = {
 export default SeriesPlot;
 
 const getTicksAndRange = (range) => {
-  let tcks = ticks(range[0], range[1], 3);
+  let tcks = ticks(range[0], range[1], 4);
   // const tcksd = tcks[1] - tcks[0];
   // tcks = [tcks[0] - tcksd, ...tcks, tcks[tcks.length - 1] + tcksd];
 
@@ -75,6 +74,11 @@ const makeSeriesPlot = (props, selection) => {
     .domain(xtr.range)
     .range([lPad, props.width - rPad]);
 
+  const vlineDat = [
+    { x: props.indexYear, y: ytr.range[0] },
+    { x: props.indexYear, y: ytr.range[1] }
+  ]
+
   const ys = scaleLinear()
     .domain(ytr.range)
     .range([props.height - bPad, 0]);
@@ -90,7 +94,7 @@ const makeSeriesPlot = (props, selection) => {
       .tickSizeInner(-(props.height - bPad))
       .tickFormat('')
     )
-    .style('color', '#e1e1e1');
+    .style('color', '#c1c1c1');
 
   selection.append('g')
     .attr('class', 'grid')
@@ -100,7 +104,7 @@ const makeSeriesPlot = (props, selection) => {
       .tickSizeInner(-(props.width - lPad - rPad))
       .tickFormat('')
     )
-    .style('color', '#e1e1e1');
+    .style('color', '#c1c1c1');
 
   const xaxis = axisBottom(xs)
     .scale(xs)
@@ -168,6 +172,14 @@ const makeSeriesPlot = (props, selection) => {
     .attr('fill', 'none')
     .attr('opacity', 0)
     .attr('opacity', 1);
+
+  selection.append('path')
+    .datum(vlineDat)
+    .attr('d', dline)
+    .attr('stroke', 'black')
+    .attr('stroke-width', 8)
+    .attr('fill', 'none')
+    .attr('opacity', 0.2);
 };
 
 SeriesPlotD3.enter = (props, selection) => {

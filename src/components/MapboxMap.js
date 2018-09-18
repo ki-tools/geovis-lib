@@ -63,6 +63,7 @@ const MapboxMap = class MapboxMap extends React.Component {
     yVar: PropTypes.string.isRequired,
     tickColors: PropTypes.func.isRequired,
     mapLoaded: PropTypes.bool.isRequired,
+    hovGeo: PropTypes.object.isRequired,
     loadMuniData: PropTypes.func.isRequired,
     changeMapLoaded: PropTypes.func.isRequired,
     changeViewMode: PropTypes.func.isRequired,
@@ -188,7 +189,10 @@ const MapboxMap = class MapboxMap extends React.Component {
       }
     }
 
-    if (this.props.index !== 0 && prevProps.index !== this.props.index) {
+    if (
+      (this.props.index !== 0 && prevProps.index !== this.props.index) ||
+      (this.props.yVar !== '' && prevProps.yVar !== this.props.yVar)
+    ) {
       this.setFill();
       // at muni view we also want the states to update their color when index changes
       if (this.props.viewMode.level === 'state') {
@@ -233,11 +237,11 @@ const MapboxMap = class MapboxMap extends React.Component {
       if (e.features.length > 0) {
         if (_this.hoveredStateId) {
           _this.map.setFeatureState({source: id, id: _this.hoveredStateId}, { hover: false});
-          _this.props.changeHovGeo('');
+          // _this.props.changeHovGeo({ level: '', id: '' }, _this.props.hovGeo);
         }
         _this.hoveredStateId = e.features[0].id;
         _this.map.setFeatureState({source: id, id: _this.hoveredStateId}, { hover: true});
-        _this.props.changeHovGeo(e.features[0].properties.code);
+        _this.props.changeHovGeo({ level: 'muni', id: e.features[0].properties.code }, _this.props.hovGeo);
       }
     });
     // When the mouse leaves the state fill layer, update the feature state of the
@@ -247,7 +251,7 @@ const MapboxMap = class MapboxMap extends React.Component {
         _this.map.setFeatureState({source: id, id: _this.hoveredStateId}, { hover: false});
       }
       _this.hoveredStateId =  null;
-      _this.props.changeHovGeo('');
+      _this.props.changeHovGeo({ level: '', id: '' }, _this.props.hovGeo);
     });
   }
 
@@ -289,11 +293,11 @@ const MapboxMap = class MapboxMap extends React.Component {
       if (e.features.length > 0) {
         if (_this.hoveredStateId) {
           _this.map.setFeatureState({source: 'states', id: _this.hoveredStateId}, { hover: false});
-          _this.props.changeHovGeo('');
+          // _this.props.changeHovGeo({ level: '', id: '' }, _this.props.hovGeo);
         }
         _this.hoveredStateId = e.features[0].id;
         _this.map.setFeatureState({source: 'states', id: _this.hoveredStateId}, { hover: true});
-        _this.props.changeHovGeo(e.features[0].properties.code);
+        _this.props.changeHovGeo({ level: 'state', id: e.features[0].properties.code }, _this.props.hovGeo);
       }
     });
     // When the mouse leaves the state fill layer, update the feature state of the
@@ -303,7 +307,7 @@ const MapboxMap = class MapboxMap extends React.Component {
         _this.map.setFeatureState({source: 'states', id: _this.hoveredStateId}, { hover: false});
       }
       _this.hoveredStateId =  null;
-      _this.props.changeHovGeo('');
+      _this.props.changeHovGeo({ level: '', id: '' }, _this.props.hovGeo);
     });
   }
 
@@ -392,7 +396,8 @@ const mapStateToProps = (state) => {
     index: state.index,
     yVar: state.yVar,
     tickColors: state.tickColors,
-    mapLoaded: state.mapLoaded
+    mapLoaded: state.mapLoaded,
+    hovGeo: state.hovGeo
   };
 }
 
@@ -430,8 +435,10 @@ const mapDispatchToProps = dispatch => ({
   changeMapLoaded: () => {
     dispatch(setMapLoaded(true));
   },
-  changeHovGeo: (id) => {
-    dispatch(setHovGeo(id));
+  changeHovGeo: (obj, prev) => {
+    // don't want to trigger these a large number of times...
+    if (obj.level !== prev.level || obj.id !== prev.id)
+      dispatch(setHovGeo(obj));
   }
 });
 

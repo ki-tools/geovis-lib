@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import injectSheet from 'react-jss';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
+import { withStyles } from '@material-ui/core/styles';
+import { hexToRGB, getTickColors } from '../misc';
 // import { quantize } from 'd3-interpolate';
 import uiConsts from '../uiConsts';
 
@@ -30,39 +31,44 @@ const styles = {
   }
 };
 
-const Legend = ({ classes, countryData, hoverInfo }) => {
-  if (!countryData || !countryData.tcks) {
+const Legend = ({ classes, tickColors, config }) => {
+  if (!config.data.isLoaded) {
     return <div />;
   }
+debugger;
+  const tcks = config.data.variables[config.data.yVar].breaks;
+  const tmp = tcks.map(d => [hexToRGB(tickColors(d), '#f3f3f1', 0.9, 0.6), d]);
+  const stepColors = [].concat.apply([], tmp);
+  stepColors.push('#aaaaaa');
 
   const legend = {
     left: 10,
     top: 20,
     height: uiConsts.legend.entryHeight,
-    entryWidth: (uiConsts.legend.width - 20) / countryData.tcks.length
+    entryWidth: (uiConsts.legend.width - 20) / stepColors.length
   };
 
   let curMarker = '';
-  const st = countryData.tcks[0];
-  const delta = countryData.tcks[1] - countryData.tcks[0];
-  if (hoverInfo.name !== undefined) {
-    let val = Math.round(hoverInfo.properties.avg_val);
-    val = ((((val - st) + delta) / delta) * legend.entryWidth) + legend.left;
-    // https://codepen.io/chrisroselli/pen/oXyqRa - add animation
-    curMarker = (
-      <line
-        x1={val}
-        y1={legend.top - 2}
-        x2={val}
-        y2={legend.top + legend.height + 2}
-        strokeWidth="2"
-        strokeLinecap="round"
-        stroke="black"
-      />
-    );
-  }
+  // const st = countryData.tcks[0];
+  // const delta = countryData.tcks[1] - countryData.tcks[0];
+  // if (hoverInfo.name !== undefined) {
+  //   // let val = Math.round(hoverInfo.properties.avg_val);
+  //   // val = ((((val - st) + delta) / delta) * legend.entryWidth) + legend.left;
+  //   // https://codepen.io/chrisroselli/pen/oXyqRa - add animation
+  //   curMarker = (
+  //     <line
+  //       x1={val}
+  //       y1={legend.top - 2}
+  //       x2={val}
+  //       y2={legend.top + legend.height + 2}
+  //       strokeWidth="2"
+  //       strokeLinecap="round"
+  //       stroke="black"
+  //     />
+  //   );
+  // }
 
-  const tcks = [st - delta, ...countryData.tcks];
+  // const tcks = [st - delta, ...countryData.tcks];
 
   return (
     <div className={classes.box}>
@@ -76,26 +82,26 @@ const Legend = ({ classes, countryData, hoverInfo }) => {
             y={legend.top - 8}
             className={classes.text}
           >
-            {`${countryData.label} (${countryData.measure})`}
+            "Data label"
           </text>
           <rect
             x={legend.left}
             y={legend.top}
             height={legend.height}
-            width={countryData.tcks.length * legend.entryWidth}
+            width={stepColors.length * legend.entryWidth}
             fill="#ffffff"
             stroke="#000000"
             strokeOpacity="0.5"
           />
           {
-            countryData.tcks.map((d, i) => (
+            stepColors.map((d, i) => (
               <rect
                 key={`legend-${i}`}
                 x={legend.left + (i * legend.entryWidth)}
                 y={legend.top}
                 height={legend.height}
                 width={legend.entryWidth}
-                fill={countryData.colors(d)}
+                fill={d}
                 opacity="0.7"
               />
             ))
@@ -129,20 +135,20 @@ const Legend = ({ classes, countryData, hoverInfo }) => {
 
 Legend.propTypes = {
   classes: PropTypes.object,
-  countryData: PropTypes.object,
-  hoverInfo: PropTypes.object
+  tickColors: PropTypes.func,
+  config: PropTypes.object
 };
 
 // ------ redux container ------
 
-const countryDataSelector = state => state.countryData;
-const hoverInfoSelector = state => state.hoverInfo;
+const tickColorsSelector = state => state.tickColors;
+const configSelector = state => state.config;
 
 const stateSelector = createSelector(
-  countryDataSelector, hoverInfoSelector,
-  (countryData, hoverInfo) => ({
-    countryData,
-    hoverInfo
+  tickColorsSelector, configSelector,
+  (tickColors, config) => ({
+    tickColors,
+    config
   })
 );
 
