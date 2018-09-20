@@ -20,14 +20,17 @@ import SeriesPlot from './SeriesPlot';
 //   x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
 const InfoOverlay = ({
-  classes, countries, states, munis, hovGeo, viewMode, config, xVar, yVar, index
+  classes, states, munis, hovGeo, viewMode, config, xVar, yVar, index
 }) => {
   let plotContent = '';
   let subText = '';
   let infoText = '';
+
   if (viewMode.mode === 'grid') {
     return (<div />);
-  } else if (hovGeo.level === '') {
+  }
+
+  if (hovGeo.level === '') {
     if (viewMode.level === 'country') {
       // const idx = countries.fIdx;
       // const countryProps = countries.features[idx[viewMode.code.country]].properties;
@@ -45,11 +48,17 @@ const InfoOverlay = ({
     } else if (viewMode.level === 'state') {
       const nMunis = munis[viewMode.code.state].features.length;
       const idx = states[viewMode.code.country].fIdx;
-      const stateProps = states[viewMode.code.country].features[idx[viewMode.code.state]].properties;
+      const stateProps = states[viewMode.code.country]
+        .features[idx[viewMode.code.state]].properties;
 
       subText = (
         <div>
-          <h4>State: <strong>{stateProps.name}</strong></h4>
+          <h4>
+            State:
+            <strong>
+              {stateProps.name}
+            </strong>
+          </h4>
           <div>{`${nMunis} municipalities`}</div>
         </div>
       );
@@ -64,7 +73,7 @@ const InfoOverlay = ({
     const idx = states[viewMode.code.country].fIdx;
     const stateProps = states[viewMode.code.country].features[idx[hovGeo.id]].properties;
     const plotDat = [];
-    for (var i = 0; i < stateProps.data.length; i += 1) {
+    for (let i = 0; i < stateProps.data.length; i += 1) {
       plotDat.push({
         x: stateProps[xVar][i],
         y: stateProps[yVar][i]
@@ -87,7 +96,12 @@ const InfoOverlay = ({
     );
 
     subText = (
-      <h4>State: <strong>{stateProps.name}</strong></h4>
+      <h4>
+        State:
+        <strong>
+          {stateProps.name}
+        </strong>
+      </h4>
     );
 
     infoText = (
@@ -97,12 +111,13 @@ const InfoOverlay = ({
     );
   } else if (hovGeo.level === 'muni' && viewMode.code.state !== '') {
     const stIdx = states[viewMode.code.country].fIdx;
-    const stateProps = states[viewMode.code.country].features[stIdx[viewMode.code.state]].properties;
+    const stateProps = states[viewMode.code.country]
+      .features[stIdx[viewMode.code.state]].properties;
 
     const idx = munis[viewMode.code.state].fIdx;
     const muniProps = munis[viewMode.code.state].features[idx[hovGeo.id]].properties;
     const plotDat = [];
-    for (var i = 0; i < muniProps.data.length; i += 1) {
+    for (let i = 0; i < muniProps.data.length; i += 1) {
       plotDat.push({
         x: muniProps[xVar][i],
         y: muniProps[yVar][i]
@@ -126,8 +141,18 @@ const InfoOverlay = ({
 
     subText = (
       <div>
-        <h4>State: <strong>{stateProps.name}</strong></h4>
-        <h4>Municipality: <strong>{muniProps.name}</strong></h4>
+        <h4>
+          State:
+          <strong>
+            {stateProps.name}
+          </strong>
+        </h4>
+        <h4>
+          Municipality:
+          <strong>
+            {muniProps.name}
+          </strong>
+        </h4>
       </div>
     );
 
@@ -145,23 +170,23 @@ const InfoOverlay = ({
       <hr className={classes.hr} />
       {plotContent}
       <div>
-      {infoText}
+        {infoText}
       </div>
     </div>
   );
 };
 
 InfoOverlay.propTypes = {
-  classes: PropTypes.object,
-  countries: PropTypes.object,
-  states: PropTypes.object,
-  munis: PropTypes.object,
-  hovGeo: PropTypes.object,
-  config: PropTypes.object,
-  viewMode: PropTypes.object,
-  xVar: PropTypes.string,
-  yVar: PropTypes.string,
-  index: PropTypes.number
+  classes: PropTypes.object.isRequired,
+  // countries: PropTypes.object.isRequired,
+  states: PropTypes.object.isRequired,
+  munis: PropTypes.object.isRequired,
+  hovGeo: PropTypes.object.isRequired,
+  config: PropTypes.object.isRequired,
+  viewMode: PropTypes.object.isRequired,
+  xVar: PropTypes.string.isRequired,
+  yVar: PropTypes.string.isRequired,
+  index: PropTypes.number.isRequired
 };
 
 

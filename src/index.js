@@ -20,7 +20,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 const theme = createMuiTheme({
   palette: {
-    primary: { light: blue['A100'], main: blue['A200'] },
+    primary: { light: blue.A100, main: blue.A200 },
     secondary: { light: lightBlue[200], main: lightBlue[700] }
   },
   typography: {

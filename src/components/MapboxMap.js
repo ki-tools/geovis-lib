@@ -16,12 +16,18 @@ import {
   requestMunis, receiveMunis, setMapLoaded, setHovGeo
 } from '../actions';
 
+const ctryCallback = '__geovis_country__';
+const stateCallback = '__geovis_state__';
+const cfgCallback = '__geovis_config__';
+
 mapboxgl.accessToken = 'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmbDZmangifQ.-g_vE53SD2WrJ6tFX7QHmA';
 
 // const ccolors = ["#ffeda0", 0, "#ffeda0", 0.2, "#fed976", 0.4, "#feb24c",
 // 0.6, "#fd8d3c", 0.8, "#fc4e2a", 0.9, "#e31a1c", 1, "#bd0026"];
 
+/* eslint-disable max-len */
 // mapboxgl.accessToken = 'pk.eyJ1IjoicmhhZmVuIiwiYSI6ImNpdnY5M25oaDAwc24yb281cnFoY3g2YTYifQ.aSlJqMyxuFCtaP6euwu-QA';
+/* eslint-enable max-len */
 
 const paintStyle = {
   border: {
@@ -48,8 +54,8 @@ const paintStyle = {
     'fill-opacity': [
       'case',
       ['boolean', ['feature-state', 'hover'], false],
-      0.75,
-      0.8
+      0.65,
+      0.7
     ]
   }
 };
@@ -65,14 +71,16 @@ const MapboxMap = class MapboxMap extends React.Component {
     yVar: PropTypes.string.isRequired,
     tickColors: PropTypes.func.isRequired,
     mapLoaded: PropTypes.bool.isRequired,
-    hovGeo: PropTypes.object.isRequired,
+    hovGeo: PropTypes.object.isRequired, // eslint-disable-line react/no-unused-prop-types
     loadMuniData: PropTypes.func.isRequired,
     changeMapLoaded: PropTypes.func.isRequired,
     changeViewMode: PropTypes.func.isRequired,
-    changeHovGeo: PropTypes.func.isRequired
+    changeHovGeo: PropTypes.func.isRequired // eslint-disable-line react/no-unused-prop-types
   };
 
   componentDidMount() {
+    const { states, viewMode, changeMapLoaded } = this.props;
+
     this.map = new mapboxgl.Map({
       container: this.mapContainer,
       style: 'mapbox://styles/mapbox/light-v9',
@@ -85,7 +93,7 @@ const MapboxMap = class MapboxMap extends React.Component {
 
     const _this = this;
     this.map.on('load', () => {
-      _this.props.changeMapLoaded();
+      changeMapLoaded();
       _this.map.on('click', (e) => {
         _this.handleMapClick(e);
       });
@@ -94,10 +102,10 @@ const MapboxMap = class MapboxMap extends React.Component {
     this.hoveredStateId = null;
 
     // this is not required but is added for browser refresh in development mode
-    if (this.props.states.isLoaded) {
-      if (this.props.viewMode.level === 'country') {
+    if (states.isLoaded) {
+      if (viewMode.level === 'country') {
         this.addStatesLayer();
-      } else if (this.props.viewMode.level === 'state') {
+      } else if (viewMode.level === 'state') {
         this.addStatesLayer();
         this.addMunisLayer();
       }
@@ -105,14 +113,19 @@ const MapboxMap = class MapboxMap extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (!prevProps.config.isLoaded && this.props.config.isLoaded) {
+    const {
+      config, mapLoaded, countries, viewMode, states, munis,
+      index, yVar
+    } = this.props;
+
+    if (!prevProps.config.isLoaded && config.isLoaded) {
       this.map
-      .setStyle(this.props.config.data.mapStyle)
-      .setCenter([0, 0])
-      .setZoom(0);
+        .setStyle(config.data.mapStyle)
+        .setCenter([0, 0])
+        .setZoom(0);
     }
 
-    if (!prevProps.mapLoaded && this.props.mapLoaded) {
+    if (!prevProps.mapLoaded && mapLoaded) {
       // now we can load countries, etc.
       store.dispatch(requestCountries());
       getJSONP({
@@ -124,10 +137,10 @@ const MapboxMap = class MapboxMap extends React.Component {
       });
     }
 
-    if (!prevProps.countries.isLoaded && this.props.countries.isLoaded) {
+    if (!prevProps.countries.isLoaded && countries.isLoaded) {
       this.map.addSource('countries', {
         type: 'geojson',
-        data: this.props.countries.data
+        data: countries.data
       });
 
       this.map.addLayer({
@@ -144,14 +157,14 @@ const MapboxMap = class MapboxMap extends React.Component {
       this.map.setLayoutProperty('country-label-sm', 'visibility', 'none');
     }
 
-    if (!prevProps.states.isLoaded && this.props.states.isLoaded) {
-    }
+    // if (!prevProps.states.isLoaded && this.props.states.isLoaded) {
+    // }
 
-    if (this.props.states.isLoaded && this.props.viewMode.level === 'country') {
-    }
+    // if (this.props.states.isLoaded && this.props.viewMode.level === 'country') {
+    // }
 
-    if (prevProps.viewMode !== this.props.viewMode) {
-      const stateFillId = `state-${this.props.viewMode.code.country}-fill`;
+    if (prevProps.viewMode !== viewMode) {
+      const stateFillId = `state-${viewMode.code.country}-fill`;
 
       if (prevProps.viewMode.level === 'state') {
         const pccode = prevProps.viewMode.code.country;
@@ -160,110 +173,84 @@ const MapboxMap = class MapboxMap extends React.Component {
         this.map.setFilter(stateFillId); // add filtered state back in
       }
 
-      if (this.props.viewMode.level === 'country') {
+      if (viewMode.level === 'country') {
         if (!this.map.getSource('states')) {
           this.map.addSource('states', {
             type: 'geojson',
-            data: this.props.states.data[this.props.viewMode.code.country]
+            data: states.data[viewMode.code.country]
           });
         }
         this.addStatesLayer();
-        this.map.fitBounds(this.props.states.data[this.props.viewMode.code.country].bbox,
+        this.map.fitBounds(states.data[viewMode.code.country].bbox,
           { padding: 20 });
       }
-      if (this.props.viewMode.level === 'state') {
-        const ccode = this.props.viewMode.code.country;
-        const scode = this.props.viewMode.code.state;
-        const muni_id = `muni-${ccode}-${scode}`;
-        const lname = `${muni_id}-border`
+      if (viewMode.level === 'state') {
+        const ccode = viewMode.code.country;
+        const scode = viewMode.code.state;
+        const muniId = `muni-${ccode}-${scode}`;
+        // const lname = `${muniId}-border`;
 
-        if (!this.map.getSource(muni_id)) {
-          this.map.addSource(muni_id, {
+        if (!this.map.getSource(muniId)) {
+          this.map.addSource(muniId, {
             type: 'geojson',
-            data: this.props.munis.data[scode]
+            data: munis.data[scode]
           });
         }
         this.addMunisLayer();
-        this.map.fitBounds(this.props.munis.data[scode].bbox,
+        this.map.fitBounds(munis.data[scode].bbox,
           { padding: 20 });
-        this.map.setFilter(stateFillId, ['!=', scode, ['get', 'code']])
+        this.map.setFilter(stateFillId, ['!=', scode, ['get', 'code']]);
         // this.map.setLayoutProperty(stateFillId, 'visibility', 'none');
       }
     }
 
     if (
-      (this.props.index !== -1 && prevProps.index !== this.props.index) ||
-      (this.props.yVar !== '' && prevProps.yVar !== this.props.yVar)
+      (index !== -1 && prevProps.index !== index)
+      || (yVar !== '' && prevProps.yVar !== yVar)
     ) {
       this.setFill();
       // at muni view we also want the states to update their color when index changes
-      if (this.props.viewMode.level === 'state') {
-        this.setFill(`state-${this.props.viewMode.code.country}-fill`);
+      if (viewMode.level === 'state') {
+        this.setFill(`state-${viewMode.code.country}-fill`);
       }
     }
 
     // map.setLayoutProperty(clickedLayer, 'visibility', 'none');
   }
 
-  addMunisLayer() {
-    const ccode = this.props.viewMode.code.country;
-    const scode = this.props.viewMode.code.state;
-    const id = `muni-${ccode}-${scode}`;
+  setFill(ln) {
+    const {
+      config, viewMode, index, yVar, tickColors
+    } = this.props;
 
-    const lname = `${id}-border`;
-
-    if (!this.map.getLayer(lname)) {
-      this.map.addLayer({
-        id: lname,
-        type: 'line',
-        source: id,
-        paint: paintStyle.border
-      }, 'state-label-sm');
+    let lname = ln;
+    if (!ln) {
+      if (viewMode.level === 'country') {
+        lname = `state-${viewMode.code.country}-fill`;
+      } else if (viewMode.level === 'state') {
+        lname = `muni-${viewMode.code.country}-${viewMode.code.state}-fill`;
+      }
     }
 
-    const lname2 = `${id}-fill`;
+    // TODO: pre-calculate this in a selector
+    const tcks = config.data.variables[yVar].breaks;
+    const tmp = tcks.map(d => [d, hexToRGB(tickColors(d), '#f3f3f1', 0.7, 0.6)]);
+    const stepColors = ['#aaaaaa', ...[].concat(...tmp)];
 
-    if (!this.map.getLayer(lname2)) {
-      this.map.addLayer({
-        id: lname2,
-        type: 'fill',
-        source: id,
-        paint: paintStyle.fill
-      }, lname);
+    if (this.map.getLayer(lname)) {
+      this.map.setPaintProperty(lname, 'fill-color',
+        [
+          'step',
+          ['number', ['at', index, ['get', yVar]], 0],
+          ...stepColors
+        ]
+      );
     }
-
-    this.setFill();
-
-    const _this = this;
-    this.map.on('mousemove', lname2, (e) => {
-      if (e.features.length > 0) {
-        if (_this.hoveredStateId) {
-          _this.map.setFeatureState({source: id, id: _this.hoveredStateId}, { hover: false});
-          // _this.props.changeHovGeo({ level: '', id: '' }, _this.props.hovGeo);
-        }
-        _this.hoveredStateId = e.features[0].id;
-        _this.map.setFeatureState({source: id, id: _this.hoveredStateId}, { hover: true});
-        _this.props.changeHovGeo({ level: 'muni', id: e.features[0].properties.code }, _this.props.hovGeo);
-      }
-    });
-    // When the mouse leaves the state fill layer, update the feature state of the
-    // previously hovered feature.
-    this.map.on('mouseleave', lname2, function() {
-      if (_this.hoveredStateId) {
-        _this.map.setFeatureState({source: id, id: _this.hoveredStateId}, { hover: false});
-      }
-      _this.hoveredStateId =  null;
-      _this.props.changeHovGeo({ level: '', id: '' }, _this.props.hovGeo);
-    });
-  }
-
-  removeMunisLayer(id) {
-    this.map.removeLayer(`${id}-border`);
-    this.map.removeLayer(`${id}-fill`);
   }
 
   addStatesLayer() {
-    const ccode = this.props.viewMode.code.country;
+    const { viewMode } = this.props;
+    const ccode = viewMode.code.country;
     const id = `state-${ccode}`;
 
     const lname = `${id}-border`;
@@ -294,51 +281,120 @@ const MapboxMap = class MapboxMap extends React.Component {
     this.map.on('mousemove', lname2, (e) => {
       if (e.features.length > 0) {
         if (_this.hoveredStateId) {
-          _this.map.setFeatureState({source: 'states', id: _this.hoveredStateId}, { hover: false});
+          _this.map.setFeatureState({ source: 'states', id: _this.hoveredStateId }, { hover: false });
           // _this.props.changeHovGeo({ level: '', id: '' }, _this.props.hovGeo);
         }
         _this.hoveredStateId = e.features[0].id;
-        _this.map.setFeatureState({source: 'states', id: _this.hoveredStateId}, { hover: true});
+        _this.map.setFeatureState({ source: 'states', id: _this.hoveredStateId }, { hover: true });
         _this.props.changeHovGeo({ level: 'state', id: e.features[0].properties.code }, _this.props.hovGeo);
       }
     });
     // When the mouse leaves the state fill layer, update the feature state of the
     // previously hovered feature.
-    this.map.on('mouseleave', lname2, function() {
+    this.map.on('mouseleave', lname2, () => {
       if (_this.hoveredStateId) {
-        _this.map.setFeatureState({source: 'states', id: _this.hoveredStateId}, { hover: false});
+        _this.map.setFeatureState({
+          source: 'states',
+          id: _this.hoveredStateId
+        }, { hover: false });
       }
-      _this.hoveredStateId =  null;
+      _this.hoveredStateId = null;
       _this.props.changeHovGeo({ level: '', id: '' }, _this.props.hovGeo);
     });
   }
 
+  addMunisLayer() {
+    const { viewMode } = this.props;
+
+    const ccode = viewMode.code.country;
+    const scode = viewMode.code.state;
+    const id = `muni-${ccode}-${scode}`;
+
+    const lname = `${id}-border`;
+
+    if (!this.map.getLayer(lname)) {
+      this.map.addLayer({
+        id: lname,
+        type: 'line',
+        source: id,
+        paint: paintStyle.border
+      }, 'state-label-sm');
+    }
+
+    const lname2 = `${id}-fill`;
+
+    if (!this.map.getLayer(lname2)) {
+      this.map.addLayer({
+        id: lname2,
+        type: 'fill',
+        source: id,
+        paint: paintStyle.fill
+      }, lname);
+    }
+
+    this.setFill();
+
+    const _this = this;
+    this.map.on('mousemove', lname2, (e) => {
+      if (e.features.length > 0) {
+        if (_this.hoveredStateId) {
+          _this.map.setFeatureState({ source: id, id: _this.hoveredStateId }, { hover: false });
+          // _this.props.changeHovGeo({ level: '', id: '' }, _this.props.hovGeo);
+        }
+        _this.hoveredStateId = e.features[0].id;
+        _this.map.setFeatureState({ source: id, id: _this.hoveredStateId }, { hover: true });
+        _this.props.changeHovGeo({ level: 'muni', id: e.features[0].properties.code }, _this.props.hovGeo);
+      }
+    });
+    // When the mouse leaves the state fill layer, update the feature state of the
+    // previously hovered feature.
+    this.map.on('mouseleave', lname2, () => {
+      if (_this.hoveredStateId) {
+        _this.map.setFeatureState(
+          { source: id, id: _this.hoveredStateId },
+          { hover: false }
+        );
+      }
+      _this.hoveredStateId = null;
+      _this.props.changeHovGeo({ level: '', id: '' }, _this.props.hovGeo);
+    });
+  }
+
+  removeMunisLayer(id) {
+    this.map.removeLayer(`${id}-border`);
+    this.map.removeLayer(`${id}-fill`);
+  }
+
   handleMapClick(e) {
-    const state_id = `state-${this.props.viewMode.code.country}-fill`;
-    if (this.map.getLayer(state_id)) {
+    const {
+      viewMode, changeViewMode, states, munis, loadMuniData
+    } = this.props;
+
+    const stateId = `state-${viewMode.code.country}-fill`;
+    if (this.map.getLayer(stateId)) {
       const features = this.map.queryRenderedFeatures(e.point,
-        { layers: [state_id] });
+        { layers: [stateId] });
       if (!features.length) {
         // a state wasn't selected... refocus on country and if in muni view, change view mode
-        if (this.props.viewMode.level === 'state') {
-          this.props.changeViewMode(this.props.viewMode.code.country, '', 'country');
+        if (viewMode.level === 'state') {
+          changeViewMode(viewMode.code.country, '', 'country');
         }
-        this.map.fitBounds(this.props.states.data[this.props.viewMode.code.country].bbox,
+        this.map.fitBounds(states.data[viewMode.code.country].bbox,
           { padding: 20 });
       } else {
         // a state was selected...
         const ccode = features[0].properties.country_code;
         const mcode = features[0].properties.code;
-        const lname = `muni-${ccode}-${mcode}`;
+        // const lname = `muni-${ccode}-${mcode}`;
         if (
-          // this.props.munis.data[ccode] !== undefined &&
-          // this.props.munis.data[ccode][mcode] !== undefined
-          this.props.munis.data[mcode] !== undefined
+          // munis.data[ccode] !== undefined &&
+          // munis.data[ccode][mcode] !== undefined
+          munis.data[mcode] !== undefined
         ) {
-          this.props.changeViewMode(ccode, mcode, 'state');
+          changeViewMode(ccode, mcode, 'state');
         } else {
           // load the data and then trigger a view mode change
-          this.props.loadMuniData(ccode, mcode);
+          loadMuniData(ccode, mcode);
         }
         // }
         // if (this.map.getLayer(lname)) {
@@ -354,68 +410,43 @@ const MapboxMap = class MapboxMap extends React.Component {
     }
   }
 
-  setFill(ln) {
-    let lname = ln;
-    if (!ln) {
-      if (this.props.viewMode.level === 'country') {
-        lname = `state-${this.props.viewMode.code.country}-fill`;
-      } else if (this.props.viewMode.level === 'state') {
-        lname = `muni-${this.props.viewMode.code.country}-${this.props.viewMode.code.state}-fill`;
-      }
-    }
-
-    // TODO: pre-calculate this in a selector
-    const tcks = this.props.config.data.variables[this.props.yVar].breaks;
-    const tmp = tcks.map(d => [d, hexToRGB(this.props.tickColors(d), '#f3f3f1', 0.9, 0.6)]);
-    const stepColors = ['#aaaaaa', ...[].concat.apply([], tmp)];
-
-    if (this.map.getLayer(lname)) {
-      this.map.setPaintProperty(lname, 'fill-color',
-        [
-          "step",
-          ["number", ['at', this.props.index, ['get', this.props.yVar]], 0],
-          ...stepColors
-        ]
-      );
-    }
-  }
-
   render() {
     return (
-      <div ref={el => this.mapContainer = el} className="absolute top right left bottom" />
+      <div
+        ref={(el) => { this.mapContainer = el; }}
+        className="absolute top right left bottom"
+      />
     );
   }
-}
+};
 
-const mapStateToProps = (state) => {
-  return {
-    config: state.config,
-    countries: state.countries,
-    states: state.states,
-    munis: state.munis,
-    viewMode: state.viewMode,
-    index: state.index,
-    yVar: state.yVar,
-    tickColors: state.tickColors,
-    mapLoaded: state.mapLoaded,
-    hovGeo: state.hovGeo // eslint-disable-line react/no-unused-prop-types
-  };
-}
+const mapStateToProps = state => ({
+  config: state.config,
+  countries: state.countries,
+  states: state.states,
+  munis: state.munis,
+  viewMode: state.viewMode,
+  index: state.index,
+  yVar: state.yVar,
+  tickColors: state.tickColors,
+  mapLoaded: state.mapLoaded,
+  hovGeo: state.hovGeo // eslint-disable-line react/no-unused-prop-types
+});
 
-const muniCallback = '__geovis_muni__'
+const muniCallback = '__geovis_muni__';
 
 const mapDispatchToProps = dispatch => ({
   loadMuniData: (ccode, scode) => {
     window[muniCallback] = (json) => {
-      json.bbox = getBbox(json);
-      json.fIdx = getFeatureIndex(json);
+      json.bbox = getBbox(json); // eslint-disable-line no-param-reassign
+      json.fIdx = getFeatureIndex(json); // eslint-disable-line no-param-reassign
       dispatch(receiveMunis({ [scode]: json }));
       dispatch(setViewMode({
         code: { country: ccode, state: scode },
-        level: "state",
-        mode: "geo"
+        level: 'state',
+        mode: 'geo'
       }));
-    }
+    };
 
     dispatch(requestMunis());
     getJSONP({
@@ -429,8 +460,8 @@ const mapDispatchToProps = dispatch => ({
   changeViewMode: (ccode, scode, level) => {
     dispatch(setViewMode({
       code: { country: ccode, state: scode },
-      level: level,
-      mode: "geo"
+      level,
+      mode: 'geo'
     }));
   },
   changeMapLoaded: () => {
@@ -438,8 +469,9 @@ const mapDispatchToProps = dispatch => ({
   },
   changeHovGeo: (obj, prev) => {
     // don't want to trigger these a large number of times...
-    if (obj.level !== prev.level || obj.id !== prev.id)
+    if (obj.level !== prev.level || obj.id !== prev.id) {
       dispatch(setHovGeo(obj));
+    }
   }
 });
 
@@ -452,10 +484,9 @@ export default connect(
 //  get data
 store.dispatch(requestConfig());
 
-const ctryCallback = '__geovis_country__'
 window[ctryCallback] = (json) => {
-  json.bbox = getBbox(json);
-  json.fIdx = getFeatureIndex(json);
+  json.bbox = getBbox(json); // eslint-disable-line no-param-reassign
+  json.fIdx = getFeatureIndex(json); // eslint-disable-line no-param-reassign
   store.dispatch(receiveCountries(json));
 
   store.dispatch(requestStates());
@@ -474,22 +505,19 @@ window[ctryCallback] = (json) => {
   //     callbackName: stateCallback
   //   });
   // });
-}
+};
 
-const stateCallback = '__geovis_state__'
 window[stateCallback] = (json) => {
-  json.bbox = getBbox(json);
-  json.fIdx = getFeatureIndex(json);
+  json.bbox = getBbox(json); // eslint-disable-line no-param-reassign
+  json.fIdx = getFeatureIndex(json); // eslint-disable-line no-param-reassign
   store.dispatch(receiveStates({
     [json.features[0].properties.country_code]: json
   }));
 
   store.dispatch(setViewMode(store.getState().config.data.defaultViewMode));
-}
+};
 
-const cfgCallback = '__geovis_config__'
 window[cfgCallback] = (json) => {
-
   store.dispatch(receiveConfig(json));
 
   const tcks = json.variables[json.defaultYVar].breaks;
@@ -498,7 +526,7 @@ window[cfgCallback] = (json) => {
   store.dispatch(setXVar(json.defaultXVar));
   store.dispatch(setYVar(json.defaultYVar));
   store.dispatch(setIndex(json.defaultIndex));
-}
+};
 
 getJSONP({
   url: 'config.jsonp',

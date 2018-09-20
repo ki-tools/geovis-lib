@@ -26,11 +26,13 @@ class SeriesPlot extends React.Component {
   }
 
   render() {
+    const { width, height } = this.props;
+
     return (
       <svg
         ref={(d) => { this._d3node = select(d); }}
-        width={this.props.width}
-        height={this.props.height}
+        width={width}
+        height={height}
       />
     );
   }
@@ -53,9 +55,7 @@ const getTicksAndRange = (range) => {
   // const tcksd = tcks[1] - tcks[0];
   // tcks = [tcks[0] - tcksd, ...tcks, tcks[tcks.length - 1] + tcksd];
 
-  const res = [];
-  res[0] = range[0];
-  res[1] = range[1];
+  const res = Array.from(range);
   const pad = (range[1] - range[0]) * 0.07;
   res[0] -= pad;
   res[1] += pad;

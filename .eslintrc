@@ -1,6 +1,10 @@
 {
   "parser": "babel-eslint",
   "extends": "airbnb",
+  "env": {
+    "browser": true,
+    "jest": true
+  },
   "rules": {
     "no-underscore-dangle": 0,
     "no-nested-ternary": 0,
@@ -11,9 +15,9 @@
     "new-cap": [2, {"capIsNewExceptions": ["Radium"]}],
      "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }]
   },
-  'globals': {
-    'window': true,
-    'document': true,
-    'VERSION': true
+  "globals": {
+    "window": true,
+    "document": true,
+    "VERSION": true
   }
 }
