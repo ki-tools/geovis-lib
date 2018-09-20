@@ -108,4 +108,3 @@ export const setHovGeo = val => (
 //           `Couldn't load config: ${err.target.responseURL}`
 //         )));
 //   };
-

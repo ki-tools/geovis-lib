@@ -4,7 +4,9 @@ import mapboxgl from 'mapbox-gl';
 import { connect } from 'react-redux';
 import { default as getJSONP } from 'browser-jsonp'; // eslint-disable-line import/no-named-default
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { hexToRGB, getBbox, getTickColors, getFeatureIndex } from '../misc';
+import {
+  hexToRGB, getBbox, getTickColors, getFeatureIndex
+} from '../misc';
 import store from '../store';
 import {
   requestConfig, receiveConfig,
@@ -16,35 +18,36 @@ import {
 
 mapboxgl.accessToken = 'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmbDZmangifQ.-g_vE53SD2WrJ6tFX7QHmA';
 
-// const ccolors = ["#ffeda0", 0, "#ffeda0", 0.2, "#fed976", 0.4, "#feb24c", 0.6, "#fd8d3c", 0.8, "#fc4e2a", 0.9, "#e31a1c", 1, "#bd0026"];
+// const ccolors = ["#ffeda0", 0, "#ffeda0", 0.2, "#fed976", 0.4, "#feb24c",
+// 0.6, "#fd8d3c", 0.8, "#fc4e2a", 0.9, "#e31a1c", 1, "#bd0026"];
 
 // mapboxgl.accessToken = 'pk.eyJ1IjoicmhhZmVuIiwiYSI6ImNpdnY5M25oaDAwc24yb281cnFoY3g2YTYifQ.aSlJqMyxuFCtaP6euwu-QA';
 
 const paintStyle = {
   border: {
-    "line-color": [
-      "case",
-      ["boolean", ["feature-state", "hover"], false],
+    'line-color': [
+      'case',
+      ['boolean', ['feature-state', 'hover'], false],
       '#444444',
       '#ffffff'
     ],
     'line-width': [
-      "case",
-      ["boolean", ["feature-state", "hover"], false],
+      'case',
+      ['boolean', ['feature-state', 'hover'], false],
       2,
       1
     ],
     'line-opacity': [
-      "case",
-      ["boolean", ["feature-state", "hover"], false],
+      'case',
+      ['boolean', ['feature-state', 'hover'], false],
       1,
       0.5
     ]
   },
   fill: {
-    "fill-opacity": [
-      "case",
-      ["boolean", ["feature-state", "hover"], false],
+    'fill-opacity': [
+      'case',
+      ['boolean', ['feature-state', 'hover'], false],
       0.75,
       0.8
     ]
@@ -52,7 +55,6 @@ const paintStyle = {
 };
 
 const MapboxMap = class MapboxMap extends React.Component {
-
   static propTypes = {
     config: PropTypes.object.isRequired,
     countries: PropTypes.object.isRequired,
@@ -70,10 +72,10 @@ const MapboxMap = class MapboxMap extends React.Component {
     changeHovGeo: PropTypes.func.isRequired
   };
 
-  componentDidMount(prevProps) {
+  componentDidMount() {
     this.map = new mapboxgl.Map({
       container: this.mapContainer,
-      style: "mapbox://styles/mapbox/light-v9",
+      style: 'mapbox://styles/mapbox/light-v9',
       attributionControl: false,
       center: [0, 0],
       zoom: 0
@@ -87,7 +89,7 @@ const MapboxMap = class MapboxMap extends React.Component {
       _this.map.on('click', (e) => {
         _this.handleMapClick(e);
       });
-    })
+    });
 
     this.hoveredStateId = null;
 
@@ -396,7 +398,7 @@ const mapStateToProps = (state) => {
     yVar: state.yVar,
     tickColors: state.tickColors,
     mapLoaded: state.mapLoaded,
-    hovGeo: state.hovGeo
+    hovGeo: state.hovGeo // eslint-disable-line react/no-unused-prop-types
   };
 }
 

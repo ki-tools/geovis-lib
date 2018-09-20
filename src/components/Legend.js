@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
 import { withStyles } from '@material-ui/core/styles';
-import { hexToRGB, getTickColors } from '../misc';
+import { hexToRGB } from '../misc';
 // import { quantize } from 'd3-interpolate';
 import uiConsts from '../uiConsts';
 
@@ -51,14 +51,13 @@ const Legend = ({
   };
 
   let curMarker = '';
-  let curDat = undefined;
+  let curDat;
 
   if (hovGeo.level !== '' && index !== -1) {
     if (hovGeo.level === 'state') {
       const idx = states[viewMode.code.country].fIdx;
       const stateProps = states[viewMode.code.country].features[idx[hovGeo.id]].properties;
       curDat = stateProps[yVar][index];
-      debugger;
     } else if (hovGeo.level === 'muni' && viewMode.code.state !== '') {
       const idx = munis[viewMode.code.state].fIdx;
       const muniProps = munis[viewMode.code.state].features[idx[hovGeo.id]].properties;
@@ -83,7 +82,7 @@ const Legend = ({
       />
     );
   }
-console.log(stepColors)
+
   return (
     <div className={classes.box}>
       <svg
@@ -110,7 +109,7 @@ console.log(stepColors)
           {
             stepColors.map((d, i) => (
               <rect
-                key={`legend-${i}`}
+                key={`legend-${d}`}
                 x={legend.left + (i * legend.entryWidth)}
                 y={legend.top}
                 height={legend.height}
@@ -123,7 +122,7 @@ console.log(stepColors)
           {
             tcks.map((d, i) => (
               <text
-                key={`legend-lbl-${i}`}
+                key={`legend-lbl-${d}`}
                 x={legend.left + (i * legend.entryWidth)}
                 y={legend.top + legend.height + 10}
                 className={classes.tickLabel}
@@ -148,9 +147,15 @@ console.log(stepColors)
 };
 
 Legend.propTypes = {
-  classes: PropTypes.object,
-  tickColors: PropTypes.func,
-  config: PropTypes.object
+  classes: PropTypes.object.isRequired,
+  tickColors: PropTypes.func.isRequired,
+  config: PropTypes.object.isRequired,
+  yVar: PropTypes.string.isRequired,
+  index: PropTypes.number.isRequired,
+  hovGeo: PropTypes.object.isRequired,
+  viewMode: PropTypes.object.isRequired,
+  states: PropTypes.object.isRequired,
+  munis: PropTypes.object.isRequired
 };
 
 // ------ redux container ------

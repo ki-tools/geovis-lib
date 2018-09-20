@@ -2,19 +2,19 @@ import React from 'react';
 import { render } from 'react-dom';
 import { MuiThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import { Provider } from 'react-redux';
+import blue from '@material-ui/core/colors/blue';
+import lightBlue from '@material-ui/core/colors/lightBlue';
 import './index.css';
 import rootReducer from './reducers';
 import store from './store';
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';
-import blue from '@material-ui/core/colors/blue';
-import lightBlue from '@material-ui/core/colors/lightBlue';
 
-if (process.env.NODE_ENV !== "production") {
+if (process.env.NODE_ENV !== 'production') {
   if (module.hot) {
     module.hot.accept('./reducers', () => {
-      store.replaceReducer(rootReducer)
-    })
+      store.replaceReducer(rootReducer);
+    });
   }
 }
 
@@ -53,7 +53,7 @@ if (module.hot) {
       </MuiThemeProvider>,
       document.getElementById('root')
     );
-  })
+  });
 }
 
 registerServiceWorker();

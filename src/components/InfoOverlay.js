@@ -19,17 +19,18 @@ import SeriesPlot from './SeriesPlot';
 // const addCommas = x =>
 //   x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 
-const InfoOverlay = ({ classes, countries, states, munis, hovGeo, viewMode, config, xVar, yVar, index }) => {
-  let res = <div />;
+const InfoOverlay = ({
+  classes, countries, states, munis, hovGeo, viewMode, config, xVar, yVar, index
+}) => {
   let plotContent = '';
   let subText = '';
   let infoText = '';
   if (viewMode.mode === 'grid') {
-    res = <div />;
+    return (<div />);
   } else if (hovGeo.level === '') {
     if (viewMode.level === 'country') {
-      const idx = countries.fIdx;
-      const countryProps = countries.features[idx[viewMode.code.country]].properties;
+      // const idx = countries.fIdx;
+      // const countryProps = countries.features[idx[viewMode.code.country]].properties;
       const nState = states[viewMode.code.country].features.length;
 
       subText = (

@@ -11,8 +11,10 @@ import { withStyles } from '@material-ui/core/styles';
 //   mean, min, max,
 //   extent, ticks
 // } from 'd3-array';
-import { setIndex, setXVar, setYVar, setTickColors } from '../actions';
-import { getTickColors } from '../misc.js';
+import {
+  setIndex, setYVar, setTickColors
+} from '../actions';
+import { getTickColors } from '../misc';
 
 const styles = theme => ({
   root: {
@@ -27,7 +29,7 @@ const styles = theme => ({
   },
   formControl: {
     margin: theme.spacing.unit,
-    minWidth: 280,
+    minWidth: 280
   },
   sliderContainer: {
     display: 'flex'
@@ -41,7 +43,9 @@ const styles = theme => ({
   }
 });
 
-const Controls = ({ classes, index, xVar, yVar, config, sliderChange, xVarChange, yVarChange }) => {
+const Controls = ({
+  classes, index, xVar, yVar, config, sliderChange, yVarChange
+}) => {
   if (config.name === undefined || xVar === '' || yVar === '') {
     return '';
   }
@@ -51,26 +55,31 @@ const Controls = ({ classes, index, xVar, yVar, config, sliderChange, xVarChange
         <InputLabel htmlFor="y-var">variable</InputLabel>
         <Select
           value={yVar}
-          onChange={(e) => yVarChange(e, config)}
+          onChange={e => yVarChange(e, config)}
           inputProps={{
             name: 'y variable',
-            id: 'y-var',
+            id: 'y-var'
           }}
         >
-        {
-          Object.keys(config.variables).map((d) => {
-            return (
+          {
+            Object.keys(config.variables).map(d => (
               <MenuItem value={d} key={`y-${d}`}>
-                <strong>{`${d}`}</strong>{`: ${config.variables[d].name}`}
+                <strong>{`${d}`}</strong>
+                {`: ${config.variables[d].name}`}
               </MenuItem>
-            );
-          })
-        }
+            ))
+          }
         </Select>
       </FormControl>
       <div className={classes.sliderContainer}>
         <div className={classes.slider}>
-          <Slider value={index} min={0} max={config.years.length - 1} step={1} onChange={sliderChange} />
+          <Slider
+            value={index}
+            min={0}
+            max={config.years.length - 1}
+            step={1}
+            onChange={sliderChange}
+          />
         </div>
         <div className={classes.sliderText}>{config.years[index]}</div>
       </div>
@@ -85,7 +94,7 @@ Controls.propTypes = {
   sliderChange: PropTypes.func.isRequired,
   xVar: PropTypes.string.isRequired,
   yVar: PropTypes.string.isRequired,
-  xVarChange: PropTypes.func.isRequired,
+  // xVarChange: PropTypes.func.isRequired,
   yVarChange: PropTypes.func.isRequired
 };
 
@@ -100,9 +109,9 @@ const mapDispatchToProps = dispatch => ({
   sliderChange: (event, val) => {
     dispatch(setIndex(val));
   },
-  xVarChange: event => {
-    dispatch(setXVar(event.target.value));
-  },
+  // xVarChange: event => {
+  //   dispatch(setXVar(event.target.value));
+  // },
   yVarChange: (event, config) => {
     // first set ticks
     const yVar = event.target.value;

@@ -15,13 +15,16 @@ class SeriesPlot extends React.Component {
     this._d3node
       .call(SeriesPlotD3.enter.bind(this, this.props));
   }
+
   // shouldComponentUpdate() {
   //   return true;
   // }
+
   componentDidUpdate() {
     this._d3node
       .call(SeriesPlotD3.update.bind(this, this.props));
   }
+
   render() {
     return (
       <svg
@@ -34,19 +37,19 @@ class SeriesPlot extends React.Component {
 }
 
 SeriesPlot.propTypes = {
-  width: PropTypes.number,
-  height: PropTypes.number,
-  data: PropTypes.array, // eslint-disable-line react/no-unused-prop-types
-  xrange: PropTypes.array, // eslint-disable-line react/no-unused-prop-types
-  yrange: PropTypes.array, // eslint-disable-line react/no-unused-prop-types
-  xLab: PropTypes.string,
-  yLab: PropTypes.string
+  width: PropTypes.number.isRequired,
+  height: PropTypes.number.isRequired,
+  data: PropTypes.array.isRequired, // eslint-disable-line react/no-unused-prop-types
+  xrange: PropTypes.array.isRequired, // eslint-disable-line react/no-unused-prop-types
+  yrange: PropTypes.array.isRequired, // eslint-disable-line react/no-unused-prop-types
+  xLab: PropTypes.string.isRequired, // eslint-disable-line react/no-unused-prop-types
+  yLab: PropTypes.string.isRequired // eslint-disable-line react/no-unused-prop-types
 };
 
 export default SeriesPlot;
 
 const getTicksAndRange = (range) => {
-  let tcks = ticks(range[0], range[1], 4);
+  const tcks = ticks(range[0], range[1], 4);
   // const tcksd = tcks[1] - tcks[0];
   // tcks = [tcks[0] - tcksd, ...tcks, tcks[tcks.length - 1] + tcksd];
 
@@ -77,7 +80,7 @@ const makeSeriesPlot = (props, selection) => {
   const vlineDat = [
     { x: props.indexYear, y: ytr.range[0] },
     { x: props.indexYear, y: ytr.range[1] }
-  ]
+  ];
 
   const ys = scaleLinear()
     .domain(ytr.range)

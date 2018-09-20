@@ -1,6 +1,6 @@
 import { scaleThreshold, scaleQuantize } from 'd3-scale';
-import uiConsts from './uiConsts';
 import geojsonExtent from 'geojson-extent';
+import uiConsts from './uiConsts';
 
 export const getXYData = (data, properties, type, varNum) => {
   const res = [];
@@ -22,11 +22,11 @@ export const getBbox = (data) => {
   // have to make a copy because geojsonExtent removes id for some reason...
   const d = Object.assign({}, {}, data);
   const bbox = geojsonExtent(d);
-  return([
+  return ([
     [bbox[0], bbox[1]],
     [bbox[2], bbox[3]]
   ]);
-}
+};
 
 export const getFeatureIndex = (data) => {
   const idx = {};
@@ -34,9 +34,9 @@ export const getFeatureIndex = (data) => {
     idx[data.features[i].properties.code] = i;
   }
   return idx;
-}
+};
 
-export const hexToRGB = (hex, bhex, a = 1, a2 = a) => {
+export const hexToRGB = (hex, bhex, a = 1) => {
   const h = '0123456789ABCDEF';
   const hx = hex.toUpperCase();
   const bhx = bhex.toUpperCase();
@@ -69,7 +69,5 @@ export const getTickColors = (tcks) => {
     .domain(tcks)
     .range(['red', ...colors, 'red']);
 
-  console.log(tcks.length)
-  console.log(colors.length + 2)
   return tickColors;
-}
+};
