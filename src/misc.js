@@ -48,9 +48,9 @@ export const hexToRGB = (hex, bhex, a = 1) => {
   const b2 = (h.indexOf(bhx[5]) * 16) + h.indexOf(bhx[6]);
 
   // http://stackoverflow.com/questions/12228548/finding-equivaent-color-with-opacity
-  const r1 = Math.max(Math.min(((r3 - r2) + (r2 * a)) / a, 255), 0);
-  const g1 = Math.max(Math.min(((g3 - g2) + (g2 * a)) / a, 255), 0);
-  const b1 = Math.max(Math.min(((b3 - b2) + (b2 * a)) / a, 255), 0);
+  const r1 = Math.round(Math.max(Math.min(((r3 - r2) + (r2 * a)) / a, 255), 0));
+  const g1 = Math.round(Math.max(Math.min(((g3 - g2) + (g2 * a)) / a, 255), 0));
+  const b1 = Math.round(Math.max(Math.min(((b3 - b2) + (b2 * a)) / a, 255), 0));
 
   // return `rgba(${r1}, ${g1}, ${b1}, ${a2})`;
   return `rgba(${r1}, ${g1}, ${b1}, 1)`;
@@ -67,7 +67,7 @@ export const getTickColors = (tcks) => {
 
   const tickColors = scaleThreshold()
     .domain(tcks)
-    .range(['red', ...colors, 'red']);
+    .range(['lightgray', ...colors, 'lightgray']);
 
   return tickColors;
 };
