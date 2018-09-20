@@ -115,7 +115,7 @@ const Legend = ({
                 height={legend.height}
                 width={legend.entryWidth}
                 fill={d}
-                opacity="0.8"
+                opacity="0.7"
               />
             ))
           }
