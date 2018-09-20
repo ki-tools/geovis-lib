@@ -23,6 +23,7 @@ const App = ({ classes }) => (
     <MapboxMap />
     <Controls />
     <InfoOverlay />
+    <Legend />
   </div>
 );
 

@@ -45,7 +45,7 @@ const paintStyle = {
     "fill-opacity": [
       "case",
       ["boolean", ["feature-state", "hover"], false],
-      0.6,
+      0.75,
       0.8
     ]
   }
@@ -190,7 +190,7 @@ const MapboxMap = class MapboxMap extends React.Component {
     }
 
     if (
-      (this.props.index !== 0 && prevProps.index !== this.props.index) ||
+      (this.props.index !== -1 && prevProps.index !== this.props.index) ||
       (this.props.yVar !== '' && prevProps.yVar !== this.props.yVar)
     ) {
       this.setFill();

@@ -38,7 +38,7 @@ export const tickColors = (state = () => '#000000', action) => {
   return state;
 };
 
-export const index = (state = 0, action) => {
+export const index = (state = -1, action) => {
   switch (action.type) {
     case SET_INDEX:
       return action.val;

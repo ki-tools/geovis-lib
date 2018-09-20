@@ -1,4 +1,4 @@
-import { scaleQuantize } from 'd3-scale';
+import { scaleLinear, scaleQuantize } from 'd3-scale';
 import uiConsts from './uiConsts';
 import geojsonExtent from 'geojson-extent';
 
@@ -57,9 +57,16 @@ export const hexToRGB = (hex, bhex, a = 1, a2 = a) => {
 };
 
 export const getTickColors = (tcks) => {
+  // first set up a linear scale to get vector of output colors
   const baseColors = uiConsts.legend.colors;
-  const colors = scaleQuantize()
+  const colorScale = scaleQuantize()
     .domain([tcks[0], tcks[tcks.length - 1]])
     .range(baseColors);
-  return colors;
+  const colors = tcks.map(d => colorScale(d));
+
+  const tickColors = scaleQuantize()
+    .domain([tcks[0], tcks[tcks.length - 1]])
+    .range(colors);
+
+  return tickColors;
 }

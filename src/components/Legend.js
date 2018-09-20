@@ -12,13 +12,13 @@ const styles = {
     position: 'absolute',
     bottom: 0,
     right: 0,
-    width: uiConsts.legend.width,
-    background: 'rgba(255, 255, 255, 0.85)',
-    marginRight: 5,
-    marginBottom: 5,
-    borderRadius: 5,
+    width: uiConsts.legend.width + 40,
+    background: 'rgba(255, 255, 255, 0.5)',
+    // marginRight: 5,
+    // marginBottom: 5,
+    // borderRadius: 5,
     paddingLeft: 8,
-    paddingRight: 8,
+    paddingRight: 40,
     paddingTop: 5,
     paddingBottom: 5,
     zIndex: 1
@@ -31,45 +31,58 @@ const styles = {
   }
 };
 
-const Legend = ({ classes, tickColors, config }) => {
-  if (!config.data.isLoaded) {
+const Legend = ({
+  classes, tickColors, config, yVar, index, hovGeo,
+  viewMode, states, munis
+}) => {
+  if (!config.isLoaded || yVar === '') {
     return <div />;
   }
-debugger;
-  const tcks = config.data.variables[config.data.yVar].breaks;
-  const tmp = tcks.map(d => [hexToRGB(tickColors(d), '#f3f3f1', 0.9, 0.6), d]);
-  const stepColors = [].concat.apply([], tmp);
-  stepColors.push('#aaaaaa');
+
+  const tcks = config.data.variables[yVar].breaks;
+  const stepColors = tcks.map(d => hexToRGB(tickColors(d), '#f3f3f1', 0.9, 0.6));
 
   const legend = {
     left: 10,
     top: 20,
     height: uiConsts.legend.entryHeight,
-    entryWidth: (uiConsts.legend.width - 20) / stepColors.length
+    entryWidth: (uiConsts.legend.width - 20) / (stepColors.length + 1)
   };
 
   let curMarker = '';
-  // const st = countryData.tcks[0];
-  // const delta = countryData.tcks[1] - countryData.tcks[0];
-  // if (hoverInfo.name !== undefined) {
-  //   // let val = Math.round(hoverInfo.properties.avg_val);
-  //   // val = ((((val - st) + delta) / delta) * legend.entryWidth) + legend.left;
-  //   // https://codepen.io/chrisroselli/pen/oXyqRa - add animation
-  //   curMarker = (
-  //     <line
-  //       x1={val}
-  //       y1={legend.top - 2}
-  //       x2={val}
-  //       y2={legend.top + legend.height + 2}
-  //       strokeWidth="2"
-  //       strokeLinecap="round"
-  //       stroke="black"
-  //     />
-  //   );
-  // }
+  let curDat = undefined;
 
-  // const tcks = [st - delta, ...countryData.tcks];
+  if (hovGeo.level !== '' && index !== -1) {
+    if (hovGeo.level === 'state') {
+      const idx = states[viewMode.code.country].fIdx;
+      const stateProps = states[viewMode.code.country].features[idx[hovGeo.id]].properties;
+      curDat = stateProps[yVar][index];
+      debugger;
+    } else if (hovGeo.level === 'muni' && viewMode.code.state !== '') {
+      const idx = munis[viewMode.code.state].fIdx;
+      const muniProps = munis[viewMode.code.state].features[idx[hovGeo.id]].properties;
+      curDat = muniProps[yVar][index];
+    }
+  }
 
+  if (curDat) {
+    const st = tcks[0];
+    const delta = tcks[1] - tcks[0];
+    const val = (((curDat - st) / delta) * legend.entryWidth) + legend.left;
+    // https://codepen.io/chrisroselli/pen/oXyqRa - add animation
+    curMarker = (
+      <line
+        x1={val}
+        y1={legend.top - 2}
+        x2={val}
+        y2={legend.top + legend.height + 2}
+        strokeWidth="2"
+        strokeLinecap="round"
+        stroke="black"
+      />
+    );
+  }
+console.log(stepColors)
   return (
     <div className={classes.box}>
       <svg
@@ -82,7 +95,7 @@ debugger;
             y={legend.top - 8}
             className={classes.text}
           >
-            "Data label"
+            {config.data.variables[yVar].name}
           </text>
           <rect
             x={legend.left}
@@ -102,7 +115,7 @@ debugger;
                 height={legend.height}
                 width={legend.entryWidth}
                 fill={d}
-                opacity="0.7"
+                opacity="0.8"
               />
             ))
           }
@@ -143,12 +156,27 @@ Legend.propTypes = {
 
 const tickColorsSelector = state => state.tickColors;
 const configSelector = state => state.config;
+const yVarSelector = state => state.yVar;
+const indexSelector = state => state.index;
+const hovGeoSelector = state => state.hovGeo;
+const viewModeSelector = state => state.viewMode;
+const stateDataSelector = state => state.states.data;
+const muniDataSelector = state => state.munis.data;
+
 
 const stateSelector = createSelector(
-  tickColorsSelector, configSelector,
-  (tickColors, config) => ({
+  tickColorsSelector, configSelector, yVarSelector,
+  indexSelector, hovGeoSelector, viewModeSelector,
+  stateDataSelector, muniDataSelector,
+  (tickColors, config, yVar, index, hovGeo, viewMode, states, munis) => ({
     tickColors,
-    config
+    config,
+    yVar,
+    index,
+    hovGeo,
+    viewMode,
+    states,
+    munis
   })
 );
 
