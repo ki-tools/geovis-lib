@@ -364,9 +364,8 @@ const MapboxMap = class MapboxMap extends React.Component {
 
     // TODO: pre-calculate this in a selector
     const tcks = this.props.config.data.variables[this.props.yVar].breaks;
-    const tmp = tcks.map(d => [hexToRGB(this.props.tickColors(d), '#f3f3f1', 0.9, 0.6), d]);
-    const stepColors = [].concat.apply([], tmp);
-    stepColors.push('#aaaaaa');
+    const tmp = tcks.map(d => [d, hexToRGB(this.props.tickColors(d), '#f3f3f1', 0.9, 0.6)]);
+    const stepColors = ['#aaaaaa', ...[].concat.apply([], tmp)];
 
     if (this.map.getLayer(lname)) {
       this.map.setPaintProperty(lname, 'fill-color',

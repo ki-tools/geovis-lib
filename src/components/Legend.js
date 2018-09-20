@@ -41,12 +41,13 @@ const Legend = ({
 
   const tcks = config.data.variables[yVar].breaks;
   const stepColors = tcks.map(d => hexToRGB(tickColors(d), '#f3f3f1', 0.9, 0.6));
+  stepColors.pop();
 
   const legend = {
     left: 10,
     top: 20,
     height: uiConsts.legend.entryHeight,
-    entryWidth: (uiConsts.legend.width - 20) / (stepColors.length + 1)
+    entryWidth: (uiConsts.legend.width - 20) / stepColors.length
   };
 
   let curMarker = '';
