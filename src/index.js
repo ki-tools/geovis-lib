@@ -34,26 +34,48 @@ const theme = createMuiTheme({
   }
 });
 
-render(
-  <MuiThemeProvider theme={theme}>
-    <Provider store={store}>
-      <App />
-    </Provider>
-  </MuiThemeProvider>,
-  document.getElementById('root')
-);
+const geovisApp = (id, width, height) => {
+  const el = document.getElementById(id);
 
-if (module.hot) {
-  module.hot.accept('./App', () => {
-    render(
-      <MuiThemeProvider theme={theme}>
-        <Provider store={store}>
-          <App />
-        </Provider>
-      </MuiThemeProvider>,
-      document.getElementById('root')
-    );
-  });
+  if (!width || width === '100%') {
+    width = window.innerWidth; // eslint-disable-line no-param-reassign
+  }
+
+  if (!height || height === '100%') {
+    height = window.innerHeight; // eslint-disable-line no-param-reassign
+  }
+
+  el.style.width = width;
+  el.style.height = height;
+
+  render(
+    <MuiThemeProvider theme={theme}>
+      <Provider store={store}>
+        <App />
+      </Provider>
+    </MuiThemeProvider>,
+    document.getElementById(id)
+  );
+
+  if (module.hot) {
+    module.hot.accept('./App', () => {
+      render(
+        <MuiThemeProvider theme={theme}>
+          <Provider store={store}>
+            <App />
+          </Provider>
+        </MuiThemeProvider>,
+        document.getElementById(id)
+      );
+    });
+  }
+
+  registerServiceWorker();
+  return ({});
+};
+
+window.geovisApp = geovisApp;
+
+if (process.env.NODE_ENV !== 'production') {
+  geovisApp('root');
 }
-
-registerServiceWorker();
