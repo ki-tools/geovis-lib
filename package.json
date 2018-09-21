@@ -7,7 +7,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "lint": "node_modules/eslint/bin/eslint.js src"
+    "lint": "node_modules/eslint/bin/eslint.js src",
+    "r": "cp build/static/css/main.*.css ../geovis/inst/htmlwidgets/lib/geovis_widget/geovis.min.css; cp build/static/js/main.*.js ../geovis/inst/htmlwidgets/lib/geovis_widget/geovis.min.js"
   },
   "devDependencies": {
     "babel-eslint": "^9.0.0",
@@ -19,9 +20,9 @@
     "react-scripts": "^1.1.5"
   },
   "dependencies": {
-    "@material-ui/core": "^3.0.2",
+    "@material-ui/core": "^3.1.0",
     "@material-ui/icons": "^3.0.1",
-    "@material-ui/lab": "^3.0.0-alpha.14",
+    "@material-ui/lab": "^3.0.0-alpha.16",
     "browser-jsonp": "^1.1.5",
     "d3-array": "^1.2.4",
     "d3-axis": "^1.0.12",
@@ -31,10 +32,10 @@
     "d3-selection": "^1.3.2",
     "d3-shape": "^1.2.2",
     "geojson-extent": "^0.3.2",
-    "mapbox-gl": "^0.48.0",
+    "mapbox-gl": "^0.49.0",
     "prop-types": "^15.6.2",
-    "react": "^16.4.2",
-    "react-dom": "^16.4.2",
+    "react": "^16.5.2",
+    "react-dom": "^16.5.2",
     "react-redux": "^5.0.7",
     "redux": "^4.0.0",
     "redux-logger": "^3.0.6",
