@@ -28,10 +28,10 @@ export const getBbox = (data) => {
   ]);
 };
 
-export const getFeatureIndex = (data) => {
+export const getFeatureIndex = (data, code) => {
   const idx = {};
   for (let i = 0; i < data.features.length; i += 1) {
-    idx[data.features[i].properties.code] = i;
+    idx[data.features[i].properties[code]] = i;
   }
   return idx;
 };

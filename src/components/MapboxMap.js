@@ -35,7 +35,7 @@ const paintStyle = {
       'case',
       ['boolean', ['feature-state', 'hover'], false],
       '#444444',
-      '#ffffff'
+      '#444444'
     ],
     'line-width': [
       'case',
@@ -126,10 +126,11 @@ const MapboxMap = class MapboxMap extends React.Component {
     }
 
     if (!prevProps.mapLoaded && mapLoaded) {
+    // if (!prevProps.config.isLoaded && config.isLoaded) {
       // now we can load countries, etc.
       store.dispatch(requestCountries());
       getJSONP({
-        url: 'data/geojson/countries.jsonp',
+        url: 'data/countries.jsonp',
         callbackName: ctryCallback
         // error: err => store.dispatch(setErrorMessage(
         //   `Couldn't load config: ${err.url}`
@@ -286,7 +287,7 @@ const MapboxMap = class MapboxMap extends React.Component {
         }
         _this.hoveredStateId = e.features[0].id;
         _this.map.setFeatureState({ source: 'states', id: _this.hoveredStateId }, { hover: true });
-        _this.props.changeHovGeo({ level: 'state', id: e.features[0].properties.code }, _this.props.hovGeo);
+        _this.props.changeHovGeo({ level: 'state', id: e.features[0].properties.state_code }, _this.props.hovGeo);
       }
     });
     // When the mouse leaves the state fill layer, update the feature state of the
@@ -343,7 +344,7 @@ const MapboxMap = class MapboxMap extends React.Component {
         }
         _this.hoveredStateId = e.features[0].id;
         _this.map.setFeatureState({ source: id, id: _this.hoveredStateId }, { hover: true });
-        _this.props.changeHovGeo({ level: 'muni', id: e.features[0].properties.code }, _this.props.hovGeo);
+        _this.props.changeHovGeo({ level: 'muni', id: e.features[0].properties.muni_code }, _this.props.hovGeo);
       }
     });
     // When the mouse leaves the state fill layer, update the feature state of the
@@ -384,7 +385,7 @@ const MapboxMap = class MapboxMap extends React.Component {
       } else {
         // a state was selected...
         const ccode = features[0].properties.country_code;
-        const mcode = features[0].properties.code;
+        const mcode = features[0].properties.state_code;
         // const lname = `muni-${ccode}-${mcode}`;
         if (
           // munis.data[ccode] !== undefined &&
@@ -438,9 +439,22 @@ const muniCallback = '__geovis_muni__';
 const mapDispatchToProps = dispatch => ({
   loadMuniData: (ccode, scode) => {
     window[muniCallback] = (json) => {
-      json.bbox = getBbox(json); // eslint-disable-line no-param-reassign
-      json.fIdx = getFeatureIndex(json); // eslint-disable-line no-param-reassign
-      dispatch(receiveMunis({ [scode]: json }));
+      json.geo.bbox = getBbox(json.geo); // eslint-disable-line no-param-reassign
+      json.geo.fIdx = getFeatureIndex(json.geo, 'muni_code'); // eslint-disable-line no-param-reassign
+
+      for (let i = 0; i < json.geo.features.length; i += 1) {
+        const mcode = json.geo.features[i].properties.muni_code;
+        let mdat = json.data[mcode];
+        if (!mdat) {
+          mdat = {};
+        }
+        json.geo.features[i].properties = { // eslint-disable-line no-param-reassign
+          ...json.geo.features[i].properties,
+          ...mdat
+        };
+      }
+
+      dispatch(receiveMunis({ [scode]: json.geo }));
       dispatch(setViewMode({
         code: { country: ccode, state: scode },
         level: 'state',
@@ -450,7 +464,7 @@ const mapDispatchToProps = dispatch => ({
 
     dispatch(requestMunis());
     getJSONP({
-      url: `data/geojson/munis/${ccode}/${scode}.jsonp`,
+      url: `data/munis/${ccode}/${scode}.jsonp`,
       callbackName: muniCallback
       // error: err => store.dispatch(setErrorMessage(
       //   `Couldn't load config: ${err.url}`
@@ -485,33 +499,47 @@ export default connect(
 store.dispatch(requestConfig());
 
 window[ctryCallback] = (json) => {
-  json.bbox = getBbox(json); // eslint-disable-line no-param-reassign
-  json.fIdx = getFeatureIndex(json); // eslint-disable-line no-param-reassign
-  store.dispatch(receiveCountries(json));
+  json.geo.bbox = getBbox(json.geo); // eslint-disable-line no-param-reassign
+  json.geo.fIdx = getFeatureIndex(json.geo, 'country_code'); // eslint-disable-line no-param-reassign
+  // merge data in to properties
+  store.dispatch(receiveCountries(json.geo));
 
   store.dispatch(requestStates());
 
   const viewMode = store.getState().config.data.defaultViewMode;
   if (viewMode.level === 'country') {
     getJSONP({
-      url: `data/geojson/states/${viewMode.code.country}.jsonp`,
+      url: `data/states/${viewMode.code.country}.jsonp`,
       callbackName: stateCallback
     });
   }
 
   // json.features.map((d) => {
   //   getJSONP({
-  //     url: `data/geojson/states/${d.properties.code}.jsonp`,
+  //     url: `data/states/${d.properties.code}_geo.jsonp`,
   //     callbackName: stateCallback
   //   });
   // });
 };
 
 window[stateCallback] = (json) => {
-  json.bbox = getBbox(json); // eslint-disable-line no-param-reassign
-  json.fIdx = getFeatureIndex(json); // eslint-disable-line no-param-reassign
+  json.geo.bbox = getBbox(json.geo); // eslint-disable-line no-param-reassign
+  json.geo.fIdx = getFeatureIndex(json.geo, 'state_code'); // eslint-disable-line no-param-reassign
+  // merge data in to properties
+  for (let i = 0; i < json.geo.features.length; i += 1) {
+    const ccode = json.geo.features[i].properties.state_code;
+    let cdat = json.data[ccode];
+    if (!cdat) {
+      cdat = {};
+    }
+    json.geo.features[i].properties = { // eslint-disable-line no-param-reassign
+      ...json.geo.features[i].properties,
+      ...cdat
+    };
+  }
+
   store.dispatch(receiveStates({
-    [json.features[0].properties.country_code]: json
+    [json.geo.features[0].properties.country_code]: json.geo
   }));
 
   store.dispatch(setViewMode(store.getState().config.data.defaultViewMode));

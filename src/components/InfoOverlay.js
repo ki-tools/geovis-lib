@@ -69,11 +69,12 @@ const InfoOverlay = ({
         </div>
       );
     }
-  } else if (hovGeo.level === 'state') {
-    const idx = states[viewMode.code.country].fIdx;
-    const stateProps = states[viewMode.code.country].features[idx[hovGeo.id]].properties;
+  } else if (hovGeo.level === 'state' && hovGeo.id) {
+    const idx = states[viewMode.code.country].fIdx[hovGeo.id];
+    const stateProps = states[viewMode.code.country].features[idx].properties;
     const plotDat = [];
-    for (let i = 0; i < stateProps.data.length; i += 1) {
+
+    for (let i = 0; i < stateProps[xVar].length; i += 1) {
       plotDat.push({
         x: stateProps[xVar][i],
         y: stateProps[yVar][i]
@@ -117,7 +118,7 @@ const InfoOverlay = ({
     const idx = munis[viewMode.code.state].fIdx;
     const muniProps = munis[viewMode.code.state].features[idx[hovGeo.id]].properties;
     const plotDat = [];
-    for (let i = 0; i < muniProps.data.length; i += 1) {
+    for (let i = 0; i < muniProps[xVar].length; i += 1) {
       plotDat.push({
         x: muniProps[xVar][i],
         y: muniProps[yVar][i]
