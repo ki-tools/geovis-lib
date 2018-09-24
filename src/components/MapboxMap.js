@@ -200,7 +200,7 @@ const MapboxMap = class MapboxMap extends React.Component {
         this.addMunisLayer();
         this.map.fitBounds(munis.data[scode].bbox,
           { padding: 20 });
-        this.map.setFilter(stateFillId, ['!=', scode, ['get', 'code']]);
+        this.map.setFilter(stateFillId, ['!=', scode, ['get', 'state_code']]);
         // this.map.setLayoutProperty(stateFillId, 'visibility', 'none');
       }
     }
@@ -347,7 +347,7 @@ const MapboxMap = class MapboxMap extends React.Component {
         _this.props.changeHovGeo({ level: 'muni', id: e.features[0].properties.muni_code }, _this.props.hovGeo);
       }
     });
-    // When the mouse leaves the state fill layer, update the feature state of the
+    // When the mouse leaves the muni fill layer, update the feature state of the
     // previously hovered feature.
     this.map.on('mouseleave', lname2, () => {
       if (_this.hoveredStateId) {
@@ -527,14 +527,14 @@ window[stateCallback] = (json) => {
   json.geo.fIdx = getFeatureIndex(json.geo, 'state_code'); // eslint-disable-line no-param-reassign
   // merge data in to properties
   for (let i = 0; i < json.geo.features.length; i += 1) {
-    const ccode = json.geo.features[i].properties.state_code;
-    let cdat = json.data[ccode];
-    if (!cdat) {
-      cdat = {};
+    const scode = json.geo.features[i].properties.state_code;
+    let sdat = Object.assign({}, json.data[scode]);
+    if (!sdat) {
+      sdat = {};
     }
     json.geo.features[i].properties = { // eslint-disable-line no-param-reassign
       ...json.geo.features[i].properties,
-      ...cdat
+      ...sdat
     };
   }
 
