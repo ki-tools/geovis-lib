@@ -5,7 +5,7 @@ import rootReducer from './reducers';
 
 let middleware = [thunkMiddleware];
 
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== 'production' || window.location.hash === '#log') {
   middleware = [...middleware, createLogger()];
 }
 
