@@ -1,6 +1,8 @@
 __geovis_config__({
   "name": "Brazil SINASC Explorer",
-  "countries": ["BRA"],
+  "countries": [
+    "BRA"
+  ],
   "defaultViewMode": {
     "mode": "geo",
     "level": "country",
@@ -14,26 +16,19 @@ __geovis_config__({
   "defaultIndex": 9,
   "mapStyle": "mapbox://styles/rhafen/cjlqs6rq47uen2speg0aasu3a",
   "states": {
-    "BRA": [
-      "BRA-1294", "BRA-1311", "BRA-1313", "BRA-576", "BRA-592", 
-      "BRA-593", "BRA-594", "BRA-595", "BRA-596", "BRA-599", 
-      "BRA-600", "BRA-601", "BRA-602", "BRA-612", "BRA-613", 
-      "BRA-614", "BRA-621", "BRA-622", "BRA-623", "BRA-624", 
-      "BRA-625", "BRA-626", "BRA-627", "BRA-628", "BRA-629", 
-      "BRA-670", "BRA-681"
-    ]
+    "BRA": ["BRA-1294", "BRA-1311", "BRA-1313", "BRA-576", "BRA-592", "BRA-593", "BRA-594", "BRA-595", "BRA-596", "BRA-599", "BRA-600", "BRA-601", "BRA-602", "BRA-612", "BRA-613", "BRA-614", "BRA-621", "BRA-622", "BRA-623", "BRA-624", "BRA-625", "BRA-626", "BRA-627", "BRA-628", "BRA-629", "BRA-670", "BRA-681"]
   },
   "seqLen": 10,
   "years": [2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010],
   "variables": {
     "year": {
-      "name": "the year",
-      "breaks": [2001, 2004, 2007, 2010],
+      "name": "year",
+      "breaks": [2000, 2002, 2004, 2006, 2008, 2010],
       "range": [2001, 2010]
     },
     "dat": {
-      "name": "the data",
-      "breaks": [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
+      "name": "dat",
+      "breaks": [0, 0.2, 0.4, 0.6, 0.8, 1],
       "range": [0, 1]
     }
   }
